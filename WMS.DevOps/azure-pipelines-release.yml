@@ -4,7 +4,6 @@ resources:
   pipelines:
     - pipeline: CI
       source: 'WMS-CI'
-
       trigger:
         branches:
           include:
@@ -18,7 +17,7 @@ variables:
 stages:
 
 # =========================================================
-# BACKEND DEPLOYMENT
+# BACKEND DEPLOYMENT (uses CI artifact)
 # =========================================================
 - stage: DeployBackend
   displayName: 'Deploy API to Azure App Service'
@@ -26,64 +25,38 @@ stages:
   jobs:
     - deployment: DeployAPI
       displayName: 'Deploy Backend'
-
       environment: 'production'
-
       strategy:
         runOnce:
           deploy:
             steps:
-
-              # Download artifact from CI pipeline
               - download: CI
                 artifact: drop
 
-              # Deploy ASP.NET Core API
               - task: AzureWebApp@1
                 displayName: 'Deploy API to App Service'
-
                 inputs:
                   azureSubscription: '$(azureSubscription)'
                   appName: '$(apiAppName)'
-                  package: '$(Pipeline.Workspace)/drop/backend'
+                  package: '$(Pipeline.Workspace)/CI/drop/backend'
 
 # =========================================================
-# FRONTEND DEPLOYMENT
+# FRONTEND DEPLOYMENT (build + deploy directly)
 # =========================================================
 - stage: DeployFrontend
   displayName: 'Deploy Angular to Static Web Apps'
-
   dependsOn: DeployBackend
   condition: succeeded()
 
   jobs:
-    - deployment: DeployFrontend
-      displayName: 'Deploy Frontend'
+    - job: DeployFrontend
+      displayName: 'Build and Deploy Frontend'
+      steps:
+        - checkout: self
 
-      environment: 'production'
-
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-
-              # Download frontend artifact
-              - download: CI
-                artifact: drop
-
-              # Debug artifact structure
-              - script: |
-                  echo "Listing downloaded artifacts..."
-                  ls -R $(Pipeline.Workspace)
-                displayName: 'Debug Artifact Structure'
-
-              # Deploy Angular frontend
-              - task: AzureStaticWebApp@0
-                displayName: 'Deploy Frontend to Static Web App'
-
-                inputs:
-                  workingDirectory: '$(Pipeline.Workspace)/drop/frontend'
-                  app_location: '/'
-                  output_location: ''
-                  skip_app_build: true
-                  azure_static_web_apps_api_token: $(SWA_TOKEN)
+        - task: AzureStaticWebApp@0
+          displayName: 'Build & Deploy Angular to Static Web App'
+          inputs:
+            app_location: 'frontend'
+            output_location: 'dist/WMS_Frontend_Project/browser'
+            azure_static_web_apps_api_token: $(SWA_TOKEN)
