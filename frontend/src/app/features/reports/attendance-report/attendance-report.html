@@ -1,0 +1,48 @@
+<div class="page-header"><h1>Attendance Report</h1></div>
+
+<mat-card class="filters-card">
+  <div class="filter-row">
+    <mat-form-field appearance="outline">
+      <mat-label>From Date</mat-label>
+      <input matInput [matDatepicker]="f1" [(ngModel)]="filters.fromDate">
+      <mat-datepicker-toggle matSuffix [for]="f1"></mat-datepicker-toggle>
+      <mat-datepicker #f1></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>To Date</mat-label>
+      <input matInput [matDatepicker]="f2" [(ngModel)]="filters.toDate">
+      <mat-datepicker-toggle matSuffix [for]="f2"></mat-datepicker-toggle>
+      <mat-datepicker #f2></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Department</mat-label>
+      <input matInput [(ngModel)]="filters.department">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="filters.status">
+        <mat-option value="">All</mat-option>
+        <mat-option value="Present">Present</mat-option>
+        <mat-option value="Absent">Absent</mat-option>
+        <mat-option value="HalfDay">Half Day</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="loadReport()">Search</button>
+  </div>
+</mat-card>
+
+<mat-card class="table-container mat-elevation-z1">
+  <mat-table [dataSource]="records">
+    <ng-container matColumnDef="employeeName"><mat-header-cell *matHeaderCellDef> Name </mat-header-cell><mat-cell *matCellDef="let r">{{ r.employeeName }}</mat-cell></ng-container>
+    <ng-container matColumnDef="employeeCode"><mat-header-cell *matHeaderCellDef> Code </mat-header-cell><mat-cell *matCellDef="let r">{{ r.employeeCode }}</mat-cell></ng-container>
+    <ng-container matColumnDef="department"><mat-header-cell *matHeaderCellDef> Dept </mat-header-cell><mat-cell *matCellDef="let r">{{ r.department }}</mat-cell></ng-container>
+    <ng-container matColumnDef="date"><mat-header-cell *matHeaderCellDef> Date </mat-header-cell><mat-cell *matCellDef="let r">{{ r.date | date:'shortDate' }}</mat-cell></ng-container>
+    <ng-container matColumnDef="checkIn"><mat-header-cell *matHeaderCellDef> In </mat-header-cell><mat-cell *matCellDef="let r">{{ r.checkIn }}</mat-cell></ng-container>
+    <ng-container matColumnDef="checkOut"><mat-header-cell *matHeaderCellDef> Out </mat-header-cell><mat-cell *matCellDef="let r">{{ r.checkOut || '-' }}</mat-cell></ng-container>
+    <ng-container matColumnDef="totalHours"><mat-header-cell *matHeaderCellDef> Hours </mat-header-cell><mat-cell *matCellDef="let r">{{ r.totalHours != null ? (r.totalHours | number:'1.1-1') : '-' }}</mat-cell></ng-container>
+    <ng-container matColumnDef="status"><mat-header-cell *matHeaderCellDef> Status </mat-header-cell><mat-cell *matCellDef="let r"><span class="status-badge" [ngClass]="'status-' + r.status.toLowerCase()">{{ r.status }}</span></mat-cell></ng-container>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+  <mat-paginator [length]="totalCount" [pageSize]="pageSize" [pageSizeOptions]="[10,25,50]" (page)="page = $event.pageIndex+1; pageSize = $event.pageSize; loadReport()" showFirstLastButtons></mat-paginator>
+</mat-card>

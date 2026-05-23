@@ -1,0 +1,2 @@
+.announcement-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+.expiry { font-size: 0.8rem; color: #64748b; margin-top: 8px; }

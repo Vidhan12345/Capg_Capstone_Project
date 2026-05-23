@@ -1,0 +1,48 @@
+<div class="form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Apply Leave</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>From Date *</mat-label>
+            <input matInput [matDatepicker]="fromPicker" formControlName="fromDate">
+            <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+            <mat-datepicker #fromPicker></mat-datepicker>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>To Date *</mat-label>
+            <input matInput [matDatepicker]="toPicker" formControlName="toDate">
+            <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+            <mat-datepicker #toPicker></mat-datepicker>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Leave Type *</mat-label>
+          <mat-select formControlName="leaveType">
+            <mat-option *ngFor="let t of leaveTypes" [value]="t">{{ t }}</mat-option>
+          </mat-select>
+          <mat-error>Required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Reason *</mat-label>
+          <textarea matInput formControlName="reason" rows="3" placeholder="Provide a reason for leave"></textarea>
+          <mat-error>Required</mat-error>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-button type="button" routerLink="/leaves">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading">
+            Apply Leave
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

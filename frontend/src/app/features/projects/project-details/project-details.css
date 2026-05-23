@@ -1,0 +1,9 @@
+.details-container { max-width: 900px; margin: 0 auto; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 16px 0; }
+.label { display: block; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
+.desc { color: #475569; margin-top: 8px; }
+.mt-4 { margin-top: 24px; }
+.mt-2 { margin-top: 16px; }
+.allocate-form { background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+.form-row { display: flex; gap: 12px; align-items: flex-start; }
+.flex-1 { flex: 1; }

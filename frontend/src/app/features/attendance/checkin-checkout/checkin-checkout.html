@@ -1,0 +1,48 @@
+<div class="checkin-container">
+  <mat-card class="status-card">
+    <mat-card-header>
+      <mat-icon class="status-icon" [color]="todayRecord?.checkOut ? 'primary' : (todayRecord?.checkIn ? 'accent' : 'warn')">
+        {{ todayRecord?.checkOut ? 'check_circle' : (todayRecord?.checkIn ? 'access_time' : 'login') }}
+      </mat-icon>
+      <mat-card-title>Today's Attendance</mat-card-title>
+      <mat-card-subtitle>{{ today | date:'fullDate' }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="status-content">
+      <div class="work-mode-select" *ngIf="!todayRecord?.checkIn">
+        <mat-form-field appearance="outline">
+          <mat-label>Work Mode</mat-label>
+          <mat-select [(ngModel)]="workMode">
+            <mat-option *ngFor="let m of workModes" [value]="m">{{ m }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="time-display" *ngIf="todayRecord?.checkIn">
+        <div class="time-block">
+          <span class="time-label">Check In</span>
+          <span class="time-value">{{ todayRecord.checkIn }}</span>
+        </div>
+        <div class="time-block" *ngIf="todayRecord?.workMode">
+          <span class="time-label">Work Mode</span>
+          <span class="time-value">{{ todayRecord.workMode }}</span>
+        </div>
+        <div class="time-block" *ngIf="todayRecord?.checkOut">
+          <span class="time-label">Check Out</span>
+          <span class="time-value">{{ todayRecord.checkOut }}</span>
+        </div>
+        <div class="time-block" *ngIf="todayRecord?.totalHours != null">
+          <span class="time-label">Total Hours</span>
+          <span class="time-value">{{ todayRecord.totalHours | number:'1.1-1' }}</span>
+        </div>
+      </div>
+      <p *ngIf="!todayRecord" class="no-record">No check-in recorded yet today.</p>
+    </mat-card-content>
+    <mat-card-actions class="action-buttons">
+      <button mat-raised-button color="primary" class="checkin-btn" (click)="onCheckIn()" [disabled]="loading || todayRecord?.checkIn">
+        <mat-icon>login</mat-icon> Check In
+      </button>
+      <button mat-raised-button color="accent" class="checkout-btn" (click)="onCheckOut()" [disabled]="loading || !todayRecord?.checkIn || todayRecord?.checkOut">
+        <mat-icon>logout</mat-icon> Check Out
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

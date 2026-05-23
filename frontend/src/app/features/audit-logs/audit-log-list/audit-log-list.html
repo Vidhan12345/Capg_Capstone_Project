@@ -1,0 +1,28 @@
+<div class="page-header"><h1>Audit Logs</h1></div>
+
+<mat-card class="filters-card">
+  <div class="filter-row">
+    <mat-form-field appearance="outline"><mat-label>Entity</mat-label><input matInput [(ngModel)]="filters.entityName" placeholder="Employee, Project..."></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Action</mat-label><mat-select [(ngModel)]="filters.action"><mat-option value="">All</mat-option><mat-option *ngFor="let a of actions" [value]="a">{{ a }}</mat-option></mat-select></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>User</mat-label><input matInput [(ngModel)]="filters.createdBy"></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>From</mat-label><input matInput [matDatepicker]="f1" [(ngModel)]="filters.fromDate"><mat-datepicker-toggle matSuffix [for]="f1"></mat-datepicker-toggle><mat-datepicker #f1></mat-datepicker></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>To</mat-label><input matInput [matDatepicker]="f2" [(ngModel)]="filters.toDate"><mat-datepicker-toggle matSuffix [for]="f2"></mat-datepicker-toggle><mat-datepicker #f2></mat-datepicker></mat-form-field>
+    <button mat-raised-button color="primary" (click)="loadLogs()">Search</button>
+  </div>
+</mat-card>
+
+<mat-card class="table-container mat-elevation-z1">
+  <mat-table [dataSource]="records">
+    <ng-container matColumnDef="auditId"><mat-header-cell *matHeaderCellDef> ID </mat-header-cell><mat-cell *matCellDef="let r">{{ r.auditId }}</mat-cell></ng-container>
+    <ng-container matColumnDef="entityName"><mat-header-cell *matHeaderCellDef> Entity </mat-header-cell><mat-cell *matCellDef="let r">{{ r.entityName }}</mat-cell></ng-container>
+    <ng-container matColumnDef="recordId"><mat-header-cell *matHeaderCellDef> Record </mat-header-cell><mat-cell *matCellDef="let r">{{ r.recordId }}</mat-cell></ng-container>
+    <ng-container matColumnDef="action"><mat-header-cell *matHeaderCellDef> Action </mat-header-cell><mat-cell *matCellDef="let r"><span class="action-chip" [ngClass]="'action-' + r.action.toLowerCase()">{{ r.action }}</span></mat-cell></ng-container>
+    <ng-container matColumnDef="oldValues"><mat-header-cell *matHeaderCellDef> Old Values </mat-header-cell><mat-cell *matCellDef="let r"><span class="detail-cell">{{ r.oldValues || '-' }}</span></mat-cell></ng-container>
+    <ng-container matColumnDef="newValues"><mat-header-cell *matHeaderCellDef> New Values </mat-header-cell><mat-cell *matCellDef="let r"><span class="detail-cell">{{ r.newValues || '-' }}</span></mat-cell></ng-container>
+    <ng-container matColumnDef="createdBy"><mat-header-cell *matHeaderCellDef> By </mat-header-cell><mat-cell *matCellDef="let r">{{ r.createdBy }}</mat-cell></ng-container>
+    <ng-container matColumnDef="createdOn"><mat-header-cell *matHeaderCellDef> When </mat-header-cell><mat-cell *matCellDef="let r">{{ r.createdOn | date:'medium' }}</mat-cell></ng-container>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+  <mat-paginator [length]="totalCount" [pageSize]="pageSize" [pageSizeOptions]="[10,25,50]" (page)="page = $event.pageIndex+1; pageSize = $event.pageSize; loadLogs()" showFirstLastButtons></mat-paginator>
+</mat-card>

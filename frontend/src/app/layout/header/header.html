@@ -1,0 +1,29 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="toggleMenu.emit()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span class="toolbar-title">Workforce Management System</span>
+  <span class="toolbar-spacer"></span>
+  <button mat-icon-button [matMenuTriggerFor]="userMenu">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item disabled>
+      <mat-icon>person</mat-icon>
+      <span>{{ user?.employeeName || 'User' }}</span>
+    </button>
+    <button mat-menu-item disabled>
+      <mat-icon>badge</mat-icon>
+      <span>{{ user?.role }}</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item routerLink="/change-password">
+      <mat-icon>lock</mat-icon>
+      <span>Change Password</span>
+    </button>
+    <button mat-menu-item (click)="onLogout()">
+      <mat-icon>logout</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>

@@ -1,0 +1,65 @@
+.checkin-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 32px;
+}
+
+.status-card {
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  padding: 24px;
+}
+
+.status-icon {
+  font-size: 56px;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+}
+
+.status-content {
+  margin: 24px 0;
+}
+
+.time-display {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.time-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.time-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.time-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.no-record {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 0 !important;
+}
+
+.checkin-btn, .checkout-btn {
+  min-width: 160px;
+  padding: 8px 24px;
+}

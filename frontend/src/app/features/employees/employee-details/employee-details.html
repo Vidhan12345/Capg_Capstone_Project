@@ -1,0 +1,61 @@
+<div class="details-container">
+  <div class="back-link">
+    <a routerLink="/employees"><mat-icon>arrow_back</mat-icon> Back to Employees</a>
+  </div>
+
+  <mat-card *ngIf="employee">
+    <mat-card-header>
+      <mat-card-title>{{ employee.firstName }} {{ employee.lastName }}</mat-card-title>
+      <mat-card-subtitle>{{ employee.employeeCode }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="label">Email</span>
+          <span class="value">{{ employee.email }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Phone</span>
+          <span class="value">{{ employee.phoneNumber || '-' }}</span>
+        </div>
+        <div class="detail-item" *ngIf="employee.gender">
+          <span class="label">Gender</span>
+          <span class="value">{{ employee.gender === 'M' ? 'Male' : employee.gender === 'F' ? 'Female' : 'Other' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Department</span>
+          <span class="value">{{ employee.departmentName }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Role</span>
+          <span class="value">{{ employee.roleName }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Date of Birth</span>
+          <span class="value">{{ employee.dateOfBirth | date:'mediumDate' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Status</span>
+          <mat-chip [color]="employee.isActive ? 'primary' : 'warn'" highlighted>{{ employee.isActive ? 'Active' : 'Inactive' }}</mat-chip>
+        </div>
+        <div class="detail-item" *ngIf="employee.dateOfJoining">
+          <span class="label">Date of Joining</span>
+          <span class="value">{{ employee.dateOfJoining | date:'mediumDate' }}</span>
+        </div>
+        <div class="detail-item" *ngIf="employee.address">
+          <span class="label">Address</span>
+          <span class="value">{{ employee.address }}</span>
+        </div>
+        <div class="detail-item" *ngIf="employee.emergencyContact">
+          <span class="label">Emergency Contact</span>
+          <span class="value">{{ employee.emergencyContact }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" [routerLink]="['/employees', employee.employeeId, 'edit']">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

@@ -1,0 +1,5 @@
+.filter-row { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.action-chip { padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; display: inline-block; }
+.action-insert { background: #d1fae5; color: #059669; }
+.action-update { background: #dbeafe; color: #1d4ed8; }
+.action-delete { background: #fee2e2; color: #dc2626; }

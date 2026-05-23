@@ -1,0 +1,27 @@
+<div class="page-header">
+  <h1>Announcements</h1>
+  <button mat-raised-button color="primary" routerLink="/announcements/new" *ngIf="canManage">
+    <mat-icon>add</mat-icon> Add Announcement
+  </button>
+</div>
+
+<div class="announcement-grid">
+  <mat-card *ngFor="let a of announcements" class="announcement-card">
+    <mat-card-header>
+      <mat-card-title>{{ a.title }}</mat-card-title>
+      <mat-card-subtitle>Posted by {{ a.postedByName }} on {{ a.postedAt | date:'medium' }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>{{ a.content }}</p>
+      <p *ngIf="a.expiresAt" class="expiry">Expires: {{ a.expiresAt | date:'mediumDate' }}</p>
+    </mat-card-content>
+    <mat-card-actions *ngIf="canManage">
+      <button mat-button color="primary" [routerLink]="['/announcements', a.announcementId, 'edit']">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
+      <button mat-button color="warn" (click)="onDelete(a.announcementId)">
+        <mat-icon>delete</mat-icon> Delete
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

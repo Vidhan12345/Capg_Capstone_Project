@@ -1,0 +1,79 @@
+<div class="page-header">
+  <h1>Employees</h1>
+  <button mat-raised-button color="primary" routerLink="/employees/new">
+    <mat-icon>add</mat-icon> Add Employee
+  </button>
+</div>
+
+<div class="search-bar">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search employees</mat-label>
+    <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearch($event)" placeholder="Search by name, email, department...">
+    <mat-icon matPrefix>search</mat-icon>
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="filter-field">
+    <mat-label>Role</mat-label>
+    <mat-select [(ngModel)]="selectedRoleId" (ngModelChange)="onRoleFilterChange()">
+      <mat-option [value]="0">All</mat-option>
+      <mat-option *ngFor="let r of roles" [value]="r.roleId">{{ r.name }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<div class="table-container">
+  <mat-table [dataSource]="dataSource" matSort (matSortChange)="loadEmployees()" class="mat-elevation-z1">
+    <ng-container matColumnDef="employeeCode">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Code </mat-header-cell>
+      <mat-cell *matCellDef="let emp"> {{ emp.employeeCode }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="fullName">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Name </mat-header-cell>
+      <mat-cell *matCellDef="let emp"> {{ emp.firstName }} {{ emp.lastName }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
+      <mat-cell *matCellDef="let emp"> {{ emp.email }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="departmentName">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Department </mat-header-cell>
+      <mat-cell *matCellDef="let emp"> {{ emp.departmentName }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="roleName">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Role </mat-header-cell>
+      <mat-cell *matCellDef="let emp"> {{ emp.roleName }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="isActive">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
+      <mat-cell *matCellDef="let emp">
+        <mat-chip [color]="emp.isActive ? 'primary' : 'warn'" highlighted>
+          {{ emp.isActive ? 'Active' : 'Inactive' }}
+        </mat-chip>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+      <mat-cell *matCellDef="let emp">
+        <button mat-icon-button color="primary" [routerLink]="['/employees', emp.employeeId, 'edit']" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button [routerLink]="['/employees', emp.employeeId]" matTooltip="View">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" *ngIf="isAdmin" (click)="onDelete(emp.employeeId, emp.firstName + ' ' + emp.lastName)" matTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+
+  <mat-paginator [length]="totalCount" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]" (page)="loadEmployees()" showFirstLastButtons></mat-paginator>
+</div>

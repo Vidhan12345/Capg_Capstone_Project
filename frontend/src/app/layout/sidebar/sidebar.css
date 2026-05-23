@@ -1,0 +1,28 @@
+:host { display: flex; flex-direction: column; height: 100%; }
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.sidebar-header mat-icon { font-size: 28px; width: 28px; height: 28px; color: #673ab7; }
+
+.sidebar-divider { border-color: #e2e8f0; }
+
+.mat-mdc-nav-list .mat-mdc-list-item { color: #475569; }
+
+.mat-mdc-nav-list .mat-mdc-list-item.active-link,
+.mat-mdc-nav-list .mat-mdc-list-item:hover {
+  color: #1e293b;
+  background: #f1f5f9;
+}
+
+.mat-mdc-nav-list .mat-mdc-list-item.active-link {
+  background: #ede9fe;
+  border-right: 3px solid #673ab7;
+}

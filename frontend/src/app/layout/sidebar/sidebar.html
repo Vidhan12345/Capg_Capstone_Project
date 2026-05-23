@@ -1,0 +1,15 @@
+<div class="sidebar-header">
+  <mat-icon>warehouse</mat-icon>
+  <span class="logo-text">WMS</span>
+</div>
+<mat-divider class="sidebar-divider"></mat-divider>
+<mat-nav-list>
+  <a mat-list-item *ngFor="let item of visibleItems"
+     [routerLink]="item.route"
+     routerLinkActive="active-link"
+     #rla="routerLinkActive"
+     [class.active]="rla.isActive">
+    <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+    <span matListItemTitle>{{ item.label }}</span>
+  </a>
+</mat-nav-list>
