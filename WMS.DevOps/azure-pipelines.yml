@@ -1,0 +1,64 @@
+trigger:
+  - dev
+  - main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: 'backend/WMS-Solution.slnx'
+  buildConfiguration: 'Release'
+  backendProject: 'backend/WMS.API/WMS.API.csproj'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  displayName: 'Restore NuGet packages'
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  displayName: 'Build backend'
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.ArtifactStagingDirectory)/backend"'
+    platform: 'any cpu'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  displayName: 'Run unit tests'
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\WMS.Tests.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)/backend'
+    platform: 'any cpu'
+    configuration: '$(buildConfiguration)'
+
+- task: Npm@1
+  displayName: 'Install frontend dependencies'
+  inputs:
+    command: 'ci'
+    workingDir: 'frontend'
+
+- task: Npm@1
+  displayName: 'Build Angular app'
+  inputs:
+    command: 'custom'
+    customCommand: 'run build -- --configuration production'
+    workingDir: 'frontend'
+
+- task: CopyFiles@2
+  displayName: 'Copy frontend build to staging'
+  inputs:
+    SourceFolder: 'frontend/dist'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/frontend'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish build artifacts'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'

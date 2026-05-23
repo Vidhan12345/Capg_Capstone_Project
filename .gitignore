@@ -1,0 +1,38 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# ASP.NET Core
+appsettings.*.local.json
+**/Properties/launchSettings.json
+
+# Angular
+node_modules/
+dist/
+*.log
+.angular/
+.cache/
+
+# IDE
+.vscode/
+.idea/
+.opencode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+packages/
+*.nupkg
+
+# Testing
+TestResults/

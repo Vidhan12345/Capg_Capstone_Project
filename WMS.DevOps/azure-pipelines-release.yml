@@ -1,0 +1,68 @@
+trigger: none
+
+resources:
+  pipelines:
+  - pipeline: CI
+    source: 'WMS-CI'
+    trigger:
+      branches:
+        include:
+        - main
+
+variables:
+  azureSubscription: 'Azure-Production'
+  apiAppName: 'wms-api'
+  frontendAppName: 'wms-frontend'
+
+stages:
+- stage: DeployBackend
+  displayName: 'Deploy API to Azure App Service'
+  jobs:
+  - deployment: DeployAPI
+    displayName: 'Deploy Backend'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: CI
+            artifact: drop
+          - task: AzureWebApp@1
+            displayName: 'Deploy API to App Service'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appName: '$(apiAppName)'
+              package: '$(Pipeline.Workspace)/CI/drop/backend/**/*.zip'
+              deploymentMethod: 'zipDeploy'
+          - task: AzureCLI@2
+            displayName: 'Run EF Core migrations'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                $connectionString = "$(DB-ConnectionString)"
+                $json = "{ ""ConnectionStrings"": { ""DefaultConnection"": ""$connectionString"" } }"
+                echo "Applying migrations..."
+                Invoke-RestMethod -Uri "https://$(apiAppName).azurewebsites.net/api/migrate" -Method POST
+
+- stage: DeployFrontend
+  displayName: 'Deploy Angular to Static Web Apps'
+  dependsOn: DeployBackend
+  condition: succeeded()
+  jobs:
+  - deployment: DeployFrontend
+    displayName: 'Deploy Frontend'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: CI
+            artifact: drop
+          - task: AzureStaticWebApp@0
+            displayName: 'Deploy to Static Web Apps'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appName: '$(frontendAppName)'
+              source: '$(Pipeline.Workspace)/CI/drop/frontend'
