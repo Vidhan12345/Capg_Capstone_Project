@@ -2,67 +2,88 @@ trigger: none
 
 resources:
   pipelines:
-  - pipeline: CI
-    source: 'WMS-CI'
-    trigger:
-      branches:
-        include:
-        - main
+    - pipeline: CI
+      source: 'WMS-CI'
+
+      trigger:
+        branches:
+          include:
+            - main
 
 variables:
-  azureSubscription: 'Azure-Production'
-  apiAppName: 'wms-api'
-  frontendAppName: 'wms-frontend'
+  azureSubscription: 'azure-service-connection'
+  apiAppName: 'WMS-Project'
+  frontendAppName: 'WMS-Frontend'
 
 stages:
+
+# =========================================================
+# BACKEND DEPLOYMENT
+# =========================================================
 - stage: DeployBackend
   displayName: 'Deploy API to Azure App Service'
-  jobs:
-  - deployment: DeployAPI
-    displayName: 'Deploy Backend'
-    environment: 'production'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - download: CI
-            artifact: drop
-          - task: AzureWebApp@1
-            displayName: 'Deploy API to App Service'
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              appName: '$(apiAppName)'
-              package: '$(Pipeline.Workspace)/CI/drop/backend/**/*.zip'
-              deploymentMethod: 'zipDeploy'
-          - task: AzureCLI@2
-            displayName: 'Run EF Core migrations'
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              scriptType: 'pscore'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                $connectionString = "$(DB-ConnectionString)"
-                $json = "{ ""ConnectionStrings"": { ""DefaultConnection"": ""$connectionString"" } }"
-                echo "Applying migrations..."
-                Invoke-RestMethod -Uri "https://$(apiAppName).azurewebsites.net/api/migrate" -Method POST
 
+  jobs:
+    - deployment: DeployAPI
+      displayName: 'Deploy Backend'
+
+      environment: 'production'
+
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+              # Download artifact from CI pipeline
+              - download: CI
+                artifact: drop
+
+              # Deploy ASP.NET Core API
+              - task: AzureWebApp@1
+                displayName: 'Deploy API to App Service'
+
+                inputs:
+                  azureSubscription: '$(azureSubscription)'
+                  appName: '$(apiAppName)'
+                  package: '$(Pipeline.Workspace)/drop/backend'
+
+# =========================================================
+# FRONTEND DEPLOYMENT
+# =========================================================
 - stage: DeployFrontend
   displayName: 'Deploy Angular to Static Web Apps'
+
   dependsOn: DeployBackend
   condition: succeeded()
+
   jobs:
-  - deployment: DeployFrontend
-    displayName: 'Deploy Frontend'
-    environment: 'production'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - download: CI
-            artifact: drop
-          - task: AzureStaticWebApp@0
-            displayName: 'Deploy to Static Web Apps'
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              appName: '$(frontendAppName)'
-              source: '$(Pipeline.Workspace)/CI/drop/frontend'
+    - deployment: DeployFrontend
+      displayName: 'Deploy Frontend'
+
+      environment: 'production'
+
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+              # Download frontend artifact
+              - download: CI
+                artifact: drop
+
+              # Debug artifact structure
+              - script: |
+                  echo "Listing downloaded artifacts..."
+                  ls -R $(Pipeline.Workspace)
+                displayName: 'Debug Artifact Structure'
+
+              # Deploy Angular frontend
+              - task: AzureStaticWebApp@0
+                displayName: 'Deploy Frontend to Static Web App'
+
+                inputs:
+                  workingDirectory: '$(Pipeline.Workspace)/drop/frontend'
+                  app_location: '/'
+                  output_location: ''
+                  skip_app_build: true
+                  azure_static_web_apps_api_token: $(SWA_TOKEN)

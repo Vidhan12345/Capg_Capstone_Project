@@ -18,24 +18,25 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-- task: VSBuild@1
+- script: |
+    dotnet build $(solution) --configuration $(buildConfiguration) --no-restore
   displayName: 'Build backend'
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.ArtifactStagingDirectory)/backend"'
-    platform: 'any cpu'
-    configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+- script: |
+    dotnet test backend/WMS.Tests/WMS.Tests.csproj --configuration $(buildConfiguration) --no-build --logger trx
   displayName: 'Run unit tests'
+  continueOnError: false
+
+- task: PublishTestResults@2
+  displayName: 'Publish test results'
+  condition: succeededOrFailed()
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\WMS.Tests.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)/backend'
-    platform: 'any cpu'
-    configuration: '$(buildConfiguration)'
+    testResultsFormat: 'VSTest'
+    testResultsFiles: '**/*.trx'
+
+- script: |
+    dotnet publish $(backendProject) --configuration $(buildConfiguration) --no-build --output "$(Build.ArtifactStagingDirectory)/backend"
+  displayName: 'Publish backend'
 
 - task: Npm@1
   displayName: 'Install frontend dependencies'
@@ -53,7 +54,7 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy frontend build to staging'
   inputs:
-    SourceFolder: 'frontend/dist'
+    SourceFolder: 'frontend/dist/WMS_Frontend_Project/browser'
     Contents: '**'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/frontend'
 
