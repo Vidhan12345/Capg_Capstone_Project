@@ -11,22 +11,38 @@ variables:
   backendProject: 'backend/WMS.API/WMS.API.csproj'
 
 steps:
+
+# =========================================================
+# INSTALL NUGET
+# =========================================================
 - task: NuGetToolInstaller@1
 
+# =========================================================
+# RESTORE BACKEND
+# =========================================================
 - task: NuGetCommand@2
   displayName: 'Restore NuGet packages'
   inputs:
     restoreSolution: '$(solution)'
 
+# =========================================================
+# BUILD BACKEND
+# =========================================================
 - script: |
     dotnet build $(solution) --configuration $(buildConfiguration) --no-restore
   displayName: 'Build backend'
 
+# =========================================================
+# RUN TESTS
+# =========================================================
 - script: |
     dotnet test backend/WMS.Tests/WMS.Tests.csproj --configuration $(buildConfiguration) --no-build --logger trx
   displayName: 'Run unit tests'
   continueOnError: false
 
+# =========================================================
+# PUBLISH TEST RESULTS
+# =========================================================
 - task: PublishTestResults@2
   displayName: 'Publish test results'
   condition: succeededOrFailed()
@@ -34,16 +50,33 @@ steps:
     testResultsFormat: 'VSTest'
     testResultsFiles: '**/*.trx'
 
+# =========================================================
+# PUBLISH BACKEND
+# =========================================================
 - script: |
     dotnet publish $(backendProject) --configuration $(buildConfiguration) --no-build --output "$(Build.ArtifactStagingDirectory)/backend"
   displayName: 'Publish backend'
 
+# =========================================================
+# INSTALL NODE
+# =========================================================
+- task: NodeTool@0
+  displayName: 'Install Node.js'
+  inputs:
+    versionSpec: '20.x'
+
+# =========================================================
+# INSTALL FRONTEND DEPENDENCIES
+# =========================================================
 - task: Npm@1
   displayName: 'Install frontend dependencies'
   inputs:
     command: 'ci'
     workingDir: 'frontend'
 
+# =========================================================
+# BUILD ANGULAR FRONTEND
+# =========================================================
 - task: Npm@1
   displayName: 'Build Angular app'
   inputs:
@@ -51,6 +84,9 @@ steps:
     customCommand: 'run build -- --configuration production'
     workingDir: 'frontend'
 
+# =========================================================
+# COPY FRONTEND BUILD
+# =========================================================
 - task: CopyFiles@2
   displayName: 'Copy frontend build to staging'
   inputs:
@@ -58,6 +94,9 @@ steps:
     Contents: '**'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/frontend'
 
+# =========================================================
+# PUBLISH ARTIFACTS
+# =========================================================
 - task: PublishBuildArtifacts@1
   displayName: 'Publish build artifacts'
   inputs:

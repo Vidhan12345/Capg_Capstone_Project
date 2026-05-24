@@ -11,74 +11,73 @@ resources:
 
 variables:
   azureSubscription: 'azure-service-connection'
+
   apiAppName: 'wms-project'
+
   frontendAppName: 'wms-frontend'
 
 stages:
 
 # =========================================================
-# BACKEND DEPLOYMENT
+# DEPLOY BACKEND
 # =========================================================
 - stage: DeployBackend
   displayName: 'Deploy API to Azure App Service'
-  dependsOn: []
-  condition: succeeded()
 
   jobs:
+
     - deployment: DeployAPI
       displayName: 'Deploy Backend'
+
       environment: 'production'
+
       strategy:
         runOnce:
           deploy:
             steps:
+
+              # DOWNLOAD ARTIFACTS
               - download: CI
                 artifact: drop
 
+              # DEPLOY BACKEND
               - task: AzureWebApp@1
                 displayName: 'Deploy API to App Service'
+
                 inputs:
                   azureSubscription: '$(azureSubscription)'
                   appName: '$(apiAppName)'
                   package: '$(Pipeline.Workspace)/CI/drop/backend'
 
 # =========================================================
-# FRONTEND DEPLOYMENT
+# DEPLOY FRONTEND
 # =========================================================
 - stage: DeployFrontend
-  displayName: 'Deploy Angular to Static Web Apps'
+  displayName: 'Deploy Frontend'
   dependsOn: DeployBackend
   condition: succeeded()
 
   jobs:
-    - job: DeployFrontend
-      displayName: 'Build and Deploy Frontend'
-      steps:
-        - checkout: self
 
-        - task: Npm@1
-          displayName: 'Install dependencies'
-          inputs:
-            command: 'ci'
-            workingDir: 'frontend'
+    - deployment: DeployFrontend
+      displayName: 'Deploy Frontend'
 
-        - task: Npm@1
-          displayName: 'Build Angular (production)'
-          inputs:
-            command: 'custom'
-            customCommand: 'run build -- --configuration production'
-            workingDir: 'frontend'
+      environment: 'production'
 
-        - task: AzureCLI@2
-          displayName: 'Deploy Frontend to Static Web App'
-          inputs:
-            azureSubscription: '$(azureSubscription)'
-            scriptType: 'bash'
-            scriptLocation: 'inlineScript'
-            inlineScript: |
-              npm install -g @azure/static-web-apps-cli
-              swa deploy frontend/dist/WMS_Frontend_Project/browser \
-                --deployment-token $SWA_TOKEN \
-                --app-name wms-frontend
-          env:
-            SWA_TOKEN: $(SWA_TOKEN)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+              # DOWNLOAD ARTIFACTS
+              - download: CI
+                artifact: drop
+
+              # DEPLOY ANGULAR FRONTEND
+              - task: AzureWebApp@1
+                displayName: 'Deploy Frontend to Azure App Service'
+
+                inputs:
+                  azureSubscription: '$(azureSubscription)'
+                  appName: '$(frontendAppName)'
+                  package: '$(Pipeline.Workspace)/CI/drop/frontend'
