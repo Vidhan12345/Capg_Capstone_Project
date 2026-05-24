@@ -121,13 +121,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 
-// TEMPORARILY DISABLED DB SEEDING
-/*
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<WMSDbContext>();
     await DbSeeder.SeedAsync(context);
 }
-*/
+
 
 app.Run();
