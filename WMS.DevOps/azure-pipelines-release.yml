@@ -12,9 +12,9 @@ resources:
 variables:
   azureSubscription: 'azure-service-connection'
 
-  apiAppName: 'wms-project'
+  apiAppName: 'WMS-Backend'
 
-  frontendAppName: 'wms-frontend'
+  frontendAppName: 'WMS-Frontend'
 
 stages:
 
